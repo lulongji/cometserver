@@ -60,8 +60,8 @@ public class IMController {
      * @param message
      * @return
      */
-    @PostMapping("/unpoll")
-    public Result unpoll(HttpServletRequest req, @RequestBody Message message) {
+    @PostMapping("/close")
+    public Result close(HttpServletRequest req, @RequestBody Message message) {
         Result result = Result.success();
         try {
             IMClient receiver = clientService.getIMClient(req.getSession());
