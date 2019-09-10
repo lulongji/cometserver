@@ -82,10 +82,11 @@ public class IMController {
      * @return
      */
     @PostMapping("/receive")
-    public Result receive(@RequestBody Message message) {
+    public Result receive(HttpServletRequest req, @RequestBody Message message) {
         Result result = Result.failure();
         try {
-            channelService.receive(message);
+            IMClient receiver = clientService.getIMClient(req.getSession());
+            channelService.receive(receiver, message);
             result = Result.success("接收成功!");
         } catch (Exception e) {
             result.setInfo("接收失败！");
@@ -106,7 +107,8 @@ public class IMController {
     public Result send(HttpServletRequest req, @RequestBody Message message) {
         Result result = Result.failure();
         try {
-            channelService.sendMsg(message);
+            IMClient receiver = clientService.getIMClient(req.getSession());
+            channelService.sendMsg(receiver, message);
             result = Result.success("发送成功!");
         } catch (Exception e) {
             result.setInfo("发送失败！");

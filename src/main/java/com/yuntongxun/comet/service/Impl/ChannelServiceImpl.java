@@ -45,7 +45,7 @@ public class ChannelServiceImpl implements IChannelService {
     }
 
     @Override
-    public void receive(Message message) throws Exception {
+    public void receive(IMClient receiver, Message message) throws Exception {
         LinkedList<Message> messageLinkedList = MapConstants.messageMap.get(getKey(message));
         if (messageLinkedList == null) {
             messageLinkedList = new LinkedList<>();
@@ -55,7 +55,7 @@ public class ChannelServiceImpl implements IChannelService {
     }
 
     @Override
-    public void sendMsg(Message message) throws Exception {
+    public void sendMsg(IMClient receiver, Message message) throws Exception {
         logger.info("ChannelServiceImpl#sendMsg message:" + message.toString());
         MessageTask messageTask = new MessageTask(this.formatMsg(message));
         messageTask.setRestTemplate(restTemplate);
