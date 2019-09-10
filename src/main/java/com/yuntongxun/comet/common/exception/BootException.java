@@ -1,4 +1,4 @@
-package com.yuntongxun.websocket.common.exception;
+package com.yuntongxun.comet.common.exception;
 
 /**
  * @Description: 自定义异常
@@ -10,7 +10,7 @@ public class BootException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private String code;
 
-    public BootException(ExceptionEnum exceptionEnum) {
+    public BootException(com.yuntongxun.websocket.common.exception.ExceptionEnum exceptionEnum) {
         super(exceptionEnum.getInfo());
         this.code = exceptionEnum.getCode();
     }

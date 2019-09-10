@@ -1,4 +1,4 @@
-package com.yuntongxun.websocket.common.exception;
+package com.yuntongxun.comet.common.exception;
 
 
 import com.yuntongxun.base.bean.Result;
