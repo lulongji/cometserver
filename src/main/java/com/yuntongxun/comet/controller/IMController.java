@@ -1,6 +1,8 @@
 package com.yuntongxun.comet.controller;
 
 import com.yuntongxun.base.bean.Result;
+import com.yuntongxun.comet.common.exception.ErrorEnum;
+import com.yuntongxun.comet.model.IMClient;
 import com.yuntongxun.comet.model.Message;
 import com.yuntongxun.comet.service.ClientService;
 import com.yuntongxun.comet.service.IChannelService;
@@ -18,6 +20,8 @@ import java.util.List;
 
 /**
  * 长轮询即时通讯
+ *
+ * @author lu
  */
 @RestController
 @RequestMapping("/im")
@@ -31,15 +35,63 @@ public class IMController {
     private ClientService clientService;
 
     /**
-     * 长轮询
+     * 建立链接(心跳)
      *
      * @param req
      * @return
      */
     @PostMapping("/polling")
-    public DeferredResult<List<Message>> poll(HttpServletRequest req) {
-        logger.info("----------------[ping session  {}]---------------", req.getSession().getId());
-        return channelService.poll(clientService.getIMClient(req.getSession()));
+    public Result poll(HttpServletRequest req, @RequestBody Message message) {
+        Result result = Result.success();
+        try {
+            List<Message> messages = channelService.poll(clientService.getIMClient(req.getSession()), message);
+            result.setResult(messages);
+        } catch (Exception e) {
+            logger.error("IMController#poll#Exception:{}", e);
+            result = Result.failure();
+        }
+        return result;
+    }
+
+    /**
+     * 断开链接（停止心跳）
+     *
+     * @param req
+     * @param message
+     * @return
+     */
+    @PostMapping("/unpoll")
+    public Result unpoll(HttpServletRequest req, @RequestBody Message message) {
+        Result result = Result.success();
+        try {
+            IMClient receiver = clientService.getIMClient(req.getSession());
+            logger.info("----------------[unpoll session {}，message  {}]---------------", receiver.getSessionId(), message.toString());
+            result.setCode(ErrorEnum.UNPOLL.getCode());
+            result.setResult(ErrorEnum.UNPOLL.getInfo());
+        } catch (Exception e) {
+            logger.error("IMController#unpoll#Exception:{}", e);
+            result = Result.failure();
+        }
+        return result;
+    }
+
+    /**
+     * 接收消息
+     *
+     * @param message
+     * @return
+     */
+    @PostMapping("/receive")
+    public Result receive(@RequestBody Message message) {
+        Result result = Result.failure();
+        try {
+            channelService.receive(message);
+            result = Result.success("接收成功!");
+        } catch (Exception e) {
+            result.setInfo("接收失败！");
+            logger.error("IMController#receive#Exception:{}", e);
+        }
+        return result;
     }
 
 
@@ -54,73 +106,11 @@ public class IMController {
     public Result send(HttpServletRequest req, @RequestBody Message message) {
         Result result = Result.failure();
         try {
-            //TODO 用户发送消息处理
-            channelService.onMessage(message, clientService.getIMClient(req.getSession()));
+            channelService.sendMsg(message);
             result = Result.success("发送成功!");
         } catch (Exception e) {
             result.setInfo("发送失败！");
-            logger.error("exception:{}", e);
-        }
-        return result;
-    }
-
-    /**
-     * 接收消息
-     *
-     * @param req
-     * @param message
-     * @return
-     */
-    @PostMapping("/receive")
-    public Result receive(HttpServletRequest req, @RequestBody Message message) {
-        Result result = Result.failure();
-        try {
-            //TODO MCM 过来的消息下发处理
-            result = Result.success("接收成功!");
-        } catch (Exception e) {
-            result.setInfo("接收失败！");
-            logger.error("exception:{}", e);
-        }
-        return result;
-    }
-
-    /**
-     * 消息订阅
-     *
-     * @param req
-     * @param message
-     * @return
-     */
-    @PostMapping("/subscribe")
-    public Result subscribe(HttpServletRequest req, @RequestBody Message message) {
-        Result result = Result.failure();
-        try {
-            channelService.subscribe(message.getChannel().getName(), clientService.getIMClient(req.getSession()));
-            result = Result.success("订阅channel:" + message.getChannel().getName() + "成功！");
-        } catch (Exception e) {
-            Result.failure("订阅失败！");
-            logger.error("exception:{}", e);
-        }
-        return result;
-    }
-
-    /**
-     * 取消订阅
-     *
-     * @param req
-     * @param message
-     * @return
-     */
-    @PostMapping("/unsubscribe")
-    public Result close(HttpServletRequest req, @RequestBody Message message) {
-        Result result = Result.failure();
-        try {
-            channelService.unsubscribe(message.getChannel().getName(), clientService.getIMClient(req.getSession()));
-            result.setInfo("取消订阅:" + message.getChannel());
-            result = Result.success();
-        } catch (Exception e) {
-            result.setInfo("订阅失败！");
-            logger.error("exception:{}", e);
+            logger.error("IMController#send#Exception:{}", e);
         }
         return result;
     }

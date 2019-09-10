@@ -7,12 +7,12 @@ import com.yuntongxun.base.constants.CommonConstants;
  * @Author: lu
  * @Date: Created in 10:09 2018/9/29
  */
-public enum ExceptionEnum {
+public enum ErrorEnum {
 
     /**
      * An unknown error.
      */
-    UNKONW_ERROR(CommonConstants.ValType.UNKNOWN_ERROR, "An unknown error."),
+    UNPOLL("-200", "断开心跳！"),
 
     /**
      * 成功
@@ -24,7 +24,7 @@ public enum ExceptionEnum {
 
     private String info;
 
-    ExceptionEnum(String code, String info) {
+    ErrorEnum(String code, String info) {
         this.code = code;
         this.info = info;
     }

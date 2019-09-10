@@ -2,28 +2,15 @@ package com.yuntongxun.comet.service;
 
 import com.yuntongxun.base.uuid.UUIDGenerator;
 import com.yuntongxun.comet.common.Constants;
+import com.yuntongxun.comet.common.MapConstants;
 import com.yuntongxun.comet.model.IMClient;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
-import java.util.Date;
 
 @Service
 public class ClientService {
 
-    /**
-     * 过期时间600s
-     */
-    private final int expire = 600 * 1000;
-
-    /**
-     * 过期时间间隔
-     *
-     * @return 过期时间间隔(ms)
-     */
-    public int getExpire() {
-        return expire;
-    }
 
     /**
      * 获取默认过期时间的IMClient
@@ -31,7 +18,7 @@ public class ClientService {
      * @param session httpSession
      */
     public IMClient getIMClient(HttpSession session) {
-        return getIMClient(session, this.expire);
+        return getIMClient(session, MapConstants.expire);
     }
 
     /**
@@ -45,11 +32,12 @@ public class ClientService {
         if (client == null) {
             client = new IMClient();
             client.setId(new UUIDGenerator().generate());
+            client.setSessionId(session.getId());
             client.setName(Constants.IM_USER);
-            client.setSaveTime(new Date().getTime() + expire);
+            client.setSaveTime(System.currentTimeMillis() + expire);
             session.setAttribute(Constants.IM_USER, client);
         } else {
-            if (client.getSaveTime() <= new Date().getTime()) {
+            if (client.getSaveTime() <= System.currentTimeMillis()) {
                 session.removeAttribute(Constants.IM_USER);
                 client = null;
             }
@@ -58,7 +46,4 @@ public class ClientService {
         return client;
     }
 
-    public boolean isExpired(IMClient client) {
-        return client.getExpire() > 0 && client.getSaveTime() <= new Date().getTime();
-    }
 }

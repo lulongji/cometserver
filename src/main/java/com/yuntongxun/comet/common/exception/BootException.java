@@ -10,7 +10,7 @@ public class BootException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private String code;
 
-    public BootException(com.yuntongxun.websocket.common.exception.ExceptionEnum exceptionEnum) {
+    public BootException(ExceptionEnum exceptionEnum) {
         super(exceptionEnum.getInfo());
         this.code = exceptionEnum.getCode();
     }
