@@ -11,5 +11,5 @@ public interface IChannelService {
 
     void sendMsg(IMClient receiver, Message message) throws Exception;
 
-    List<Message> poll(IMClient receiver, Message message) throws Exception;
+    List<String> poll(IMClient receiver, Message message) throws Exception;
 }

@@ -8,6 +8,7 @@ import com.yuntongxun.comet.service.ClientService;
 import com.yuntongxun.comet.service.IChannelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +35,10 @@ public class IMController {
     @Autowired
     private ClientService clientService;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+
     /**
      * 建立链接(心跳)
      *
@@ -44,7 +49,7 @@ public class IMController {
     public Result poll(HttpServletRequest req, @RequestBody Message message) {
         Result result = Result.success();
         try {
-            List<Message> messages = channelService.poll(clientService.getIMClient(req.getSession()), message);
+            List<String> messages = channelService.poll(clientService.getIMClient(req.getSession()), message);
             result.setResult(messages);
         } catch (Exception e) {
             logger.error("IMController#poll#Exception:{}", e);
